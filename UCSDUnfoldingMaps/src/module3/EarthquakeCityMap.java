@@ -2,6 +2,7 @@ package module3;
 
 //Java utilities libraries
 import java.util.ArrayList;
+import java.util.HashMap;
 //import java.util.Collections;
 //import java.util.Comparator;
 import java.util.List;
@@ -33,12 +34,13 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFLINE, change the value of this variable to true
-	private static final boolean offline = false;
+	private static final boolean offline = true;
 	
 	// Less than this threshold is a light earthquake
 	public static final float THRESHOLD_MODERATE = 5;
 	// Less than this threshold is a minor earthquake
 	public static final float THRESHOLD_LIGHT = 4;
+	public static final float THRESHOLD_LOWER = 0;
 
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -49,10 +51,12 @@ public class EarthquakeCityMap extends PApplet {
 	//feed with magnitude 2.5+ Earthquakes
 	private String earthquakesURL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.atom";
 
+	private HashMap<Float,String> hashKey;
+	
 	
 	public void setup() {
 		size(950, 600, OPENGL);
-
+		buildHashKeyText();
 		if (offline) {
 		    map = new UnfoldingMap(this, 200, 50, 700, 500, new MBTilesMapProvider(mbTilesString));
 		    earthquakesURL = "2.5_week.atom"; 	// Same feed, saved Aug 7, 2015, for working offline
@@ -73,6 +77,10 @@ public class EarthquakeCityMap extends PApplet {
 	    //PointFeatures have a getLocation method
 	    List<PointFeature> earthquakes = ParseFeed.parseEarthquake(this, earthquakesURL);
 	    
+	    
+	    for(PointFeature ponto : earthquakes) {
+	    	markers.add(createMarker(ponto));
+	    }
 	    //TODO (Step 3): Add a loop here that calls createMarker (see below) 
 	    // to create a new SimplePointMarker for each PointFeature in 
 	    // earthquakes.  Then add each new SimplePointMarker to the 
@@ -104,19 +112,9 @@ public class EarthquakeCityMap extends PApplet {
 		
 		Object magObj = feature.getProperty("magnitude");
 		float mag = Float.parseFloat(magObj.toString());
-		
-		// Here is an example of how to use Processing's color method to generate 
-	    // an int that represents the color yellow.  
-	    int yellow = color(255, 255, 0);
-		
-		// TODO (Step 4): Add code below to style the marker's size and color 
-	    // according to the magnitude of the earthquake.  
-	    // Don't forget about the constants THRESHOLD_MODERATE and 
-	    // THRESHOLD_LIGHT, which are declared above.
-	    // Rather than comparing the magnitude to a number directly, compare 
-	    // the magnitude to these variables (and change their value in the code 
-	    // above if you want to change what you mean by "moderate" and "light")
-	    
+
+	    marker.setColor(getMarkerColor(mag));
+	    marker.setRadius(getMarkerRadius(mag));
 	    
 	    // Finally return the marker
 	    return marker;
@@ -127,13 +125,60 @@ public class EarthquakeCityMap extends PApplet {
 	    map.draw();
 	    addKey();
 	}
+	
+	public int getMarkerColor(float magnitude) {
+	    if ( magnitude >= THRESHOLD_MODERATE ) {
+	    	return color(255, 0, 0);
+	    } else if (magnitude >= THRESHOLD_LIGHT ) {
+	    	return color(255, 255, 0);
+	    }
+	    
+	    return color(0, 0, 255);
+	}
+	
+	public int getMarkerRadius(float magnitude) {
+	    if ( magnitude > THRESHOLD_MODERATE ) {
+	    	return 15;
+	    } else if (magnitude > THRESHOLD_LIGHT ) {
+	    	return 10;
+	    } 
+	    
+    	return 5;	   
+	}
 
 
 	// helper method to draw key in GUI
-	// TODO: Implement this method to draw the key
 	private void addKey() 
 	{	
 		// Remember you can use Processing's graphics methods here
-	
+		fill(255);
+		rect(50,50,140,500);
+		textSize(10);
+		fill(0);
+		text("Earthquake Key", 55, 70);
+
+		
+		createPoint(THRESHOLD_MODERATE, 105);
+		createPoint(THRESHOLD_LIGHT   , 145);
+		createPoint(THRESHOLD_LOWER   , 185);
+
 	}
+	
+	private void createPoint(float magnitude, int verticalPosition) {
+		
+		int radius = getMarkerRadius(magnitude);
+		
+		fill(0);
+		text( hashKey.get(magnitude), 75, verticalPosition );
+		fill(getMarkerColor(magnitude));
+		ellipse(60, verticalPosition, radius, radius );
+	}
+	
+	private void buildHashKeyText() {
+		hashKey = new HashMap<>();
+		hashKey.put(THRESHOLD_MODERATE,"5.0+ Magnitude");
+		hashKey.put(THRESHOLD_LIGHT,"4.0+ Magnitude");
+		hashKey.put(THRESHOLD_LOWER,"Below 4.0" );
+	}
+
 }
