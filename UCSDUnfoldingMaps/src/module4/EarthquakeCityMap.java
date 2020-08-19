@@ -2,6 +2,8 @@ package module4;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.Feature;
@@ -187,32 +189,30 @@ public class EarthquakeCityMap extends PApplet {
 	 * */
 	private void printQuakes() 
 	{
-		// TODO: Implement this method
-		// One (inefficient but correct) approach is to:
-		//   Loop over all of the countries, e.g. using 
-		//        for (Marker cm : countryMarkers) { ... }
-		//        
-		//      Inside the loop, first initialize a quake counter.
-		//      Then loop through all of the earthquake
-		//      markers and check to see whether (1) that marker is on land
-		//     	and (2) if it is on land, that its country property matches 
-		//      the name property of the country marker.   If so, increment
-		//      the country's counter.
+		Map<String,Integer> quakeCount = new TreeMap<String,Integer>();
+		String OCEAN_CONSTANT = "OCEAN";
 		
-		// Here is some code you will find useful:
-		// 
-		//  * To get the name of a country from a country marker in variable cm, use:
-		//     String name = (String)cm.getProperty("name");
-		//  * If you have a reference to a Marker m, but you know the underlying object
-		//    is an EarthquakeMarker, you can cast it:
-		//       EarthquakeMarker em = (EarthquakeMarker)m;
-		//    Then em can access the methods of the EarthquakeMarker class 
-		//       (e.g. isOnLand)
-		//  * If you know your Marker, m, is a LandQuakeMarker, then it has a "country" 
-		//      property set.  You can get the country with:
-		//        String country = (String)m.getProperty("country");
+		for(Marker mark : quakeMarkers ) {
+			if (mark instanceof EarthquakeMarker) {
+				EarthquakeMarker quake = (EarthquakeMarker) mark;
+				
+				if (quake.isOnLand())
+					sumCountEarthquake(quakeCount, (String) quake.getProperty("country"));
+				else
+					sumCountEarthquake(quakeCount,OCEAN_CONSTANT);								
+			}
+		}
 		
+		for(String key : quakeCount.keySet()) {
+			if( key != OCEAN_CONSTANT )
+				System.out.println( key +"\t" +quakeCount.get(key));			
+		}
 		
+		System.out.println( OCEAN_CONSTANT +"\t" +quakeCount.get(OCEAN_CONSTANT));
+	}
+	
+	private void sumCountEarthquake(Map<String,Integer> map, String name) {
+		map.put(name, map.getOrDefault(name,0)+1 );
 	}
 	
 	
