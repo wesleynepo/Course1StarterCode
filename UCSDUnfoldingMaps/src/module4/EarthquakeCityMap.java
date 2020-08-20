@@ -37,7 +37,7 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = false;
+	private static final boolean offline = true;
 	
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -144,10 +144,15 @@ public class EarthquakeCityMap extends PApplet {
 		text("Earthquake Key", 50, 75);
 		
 		fill(color(255, 0, 0));
-		triangle(60,110,50,100,70,100);
-
+		triangle(60,110,50,100,70,100);		
+		ellipse(58,130,15,15);
+		rect(50, 150, 15, 15);
+		
 		fill(0, 0, 0);
 		text("City Marker", 75, 105);
+		text("Land Maker", 75, 130);
+		text("Ocean Quake", 75, 155);
+		text("Size ~ Magnitude", 50, 175);
 		//text("4.0+ Magnitude", 75, 175);
 		//text("Below 4.0", 75, 225);
 	}
