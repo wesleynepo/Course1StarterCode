@@ -35,7 +35,9 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	public static final float THRESHOLD_INTERMEDIATE = 70;
 	/** Greater than or equal to this threshold is a deep depth */
 	public static final float THRESHOLD_DEEP = 300;
-
+	
+	public static final String LAST_AGE = "Past Hour";
+	
 	// ADD constants for colors
 
 	
@@ -52,13 +54,13 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		float magnitude = Float.parseFloat(properties.get("magnitude").toString());
 		properties.put("radius", 2*magnitude );
 		setProperties(properties);
-		this.radius = 1.75f*getMagnitude();
+		this.radius = 3f*getMagnitude();
 	}
 	
 
 	// calls abstract method drawEarthquake and then checks age and draws X if needed
 	public void draw(PGraphics pg, float x, float y) {
-		// save previous styling
+		float radius = this.radius;
 		pg.pushStyle();
 			
 		// determine color of marker from depth
@@ -67,7 +69,10 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 		// call abstract method implemented in child class to draw marker shape
 		drawEarthquake(pg, x, y);
 		
-		// OPTIONAL TODO: draw X over marker if within past day		
+		if( this.getAge().equalsIgnoreCase(LAST_AGE) ) {
+			pg.line(x-radius,y+radius,x+radius,y-radius);
+			pg.line(x+radius,y+radius,x-radius,y-radius);
+		}
 		
 		// reset to previous styling
 		pg.popStyle();
@@ -80,13 +85,25 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	// But this is up to you, of course.
 	// You might find the getters below helpful.
 	private void colorDetermine(PGraphics pg) {
-		//TODO: Implement this method
+		float depth = getDepth();
+		
+		if (depth > THRESHOLD_DEEP )
+			pg.fill(255,0,0);
+		else if (depth > THRESHOLD_INTERMEDIATE)
+			pg.fill(0,0,255);
+		else 
+			pg.fill(255,255,0);
+
 	}
 	
 	
 	/*
 	 * getters for earthquake properties
 	 */
+	public String getAge() {
+		return getProperty("age").toString();
+	}
+	
 	
 	public float getMagnitude() {
 		return Float.parseFloat(getProperty("magnitude").toString());
@@ -104,6 +121,8 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	public float getRadius() {
 		return Float.parseFloat(getProperty("radius").toString());
 	}
+	
+	
 	
 	public boolean isOnLand()
 	{
