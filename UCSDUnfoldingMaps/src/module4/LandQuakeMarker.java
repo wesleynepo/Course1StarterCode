@@ -24,7 +24,7 @@ public class LandQuakeMarker extends EarthquakeMarker {
 
 	@Override
 	public void drawEarthquake(PGraphics pg, float x, float y) {
-		float size = this.getRadius();
+		float size = this.radius;
 		pg.ellipse(x,y,size,size);
 	}
 	
