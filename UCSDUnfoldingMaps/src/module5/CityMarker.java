@@ -32,7 +32,7 @@ public class CityMarker extends CommonMarker {
 	/**
 	 * Implementation of method to draw marker on the map.
 	 */
-	public void draw(PGraphics pg, float x, float y) {
+	public void drawMarker(PGraphics pg, float x, float y) {
 		// Save previous drawing style
 		pg.pushStyle();
 		
@@ -47,8 +47,14 @@ public class CityMarker extends CommonMarker {
 	/** Show the title of the city if this marker is selected */
 	public void showTitle(PGraphics pg, float x, float y)
 	{
+		String text = this.getCity() +"\t," +this.getCountry() +"\t," +this.getPopulation();
 		
-		// TODO: Implement this method
+		pg.pushStyle();
+		pg.fill( 255, 255, 255);
+		pg.rect(x,y-10,text.length()*6, 15);
+		pg.fill( 0, 0, 0);
+		pg.text( text,x,y);
+		pg.popStyle();
 	}
 	
 	
@@ -70,10 +76,4 @@ public class CityMarker extends CommonMarker {
 		return Float.parseFloat(getStringProperty("population"));
 	}
 
-
-	@Override
-	public void drawMarker(PGraphics pg, float x, float y) {
-		// TODO Auto-generated method stub
-		
-	}
 }
