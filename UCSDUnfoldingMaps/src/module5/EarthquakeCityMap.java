@@ -162,9 +162,29 @@ public class EarthquakeCityMap extends PApplet {
 	@Override
 	public void mouseClicked()
 	{
-		// TODO: Implement this method
-		// Hint: You probably want a helper method or two to keep this code
-		// from getting too long/disorganized
+		if (lastClicked != null) {
+			lastClicked.setSelected(false);
+			lastClicked = null;
+			unhideMarkers();
+		}
+		
+		if (!selectClicked(quakeMarkers) && !selectClicked(cityMarkers))
+			unhideMarkers();
+		else
+			hideMarkers();
+		
+	}
+	
+	public boolean selectClicked(List<Marker> markers) 
+	{
+		for( Marker m : markers) {
+			if( m.isInside(map, mouseX, mouseY ) ) {
+				lastClicked = (CommonMarker) m;
+				lastClicked.setSelected(true);
+			}					
+		}
+		
+		return lastClicked != null;
 	}
 	
 	
@@ -178,6 +198,49 @@ public class EarthquakeCityMap extends PApplet {
 			marker.setHidden(false);
 		}
 	}
+	
+	private void hideMarkers() {
+		for(Marker marker : quakeMarkers) {
+			if(!marker.isSelected() && !isThreatToCity(marker) ){
+				marker.setHidden(true);
+			}
+		}
+			
+		for(Marker marker : cityMarkers) {
+			if( !marker.isSelected() && !isInThreat(marker) ){
+				marker.setHidden(true);
+			}
+		}
+	}
+	
+	public boolean isInThreat(Marker mark) {
+		
+		if( lastClicked instanceof EarthquakeMarker ) {
+			double threatRadius = ((EarthquakeMarker) lastClicked).threatCircle(); 
+			double distance = lastClicked.getDistanceTo(mark.getLocation());
+			
+			return distance <= threatRadius;
+		}
+		
+		return false;
+	}
+	
+	
+	public boolean isThreatToCity(Marker mark) {
+		
+		if ( lastClicked instanceof CityMarker) {
+			double threatRadius = ((EarthquakeMarker) mark).threatCircle(); 
+			double distance = mark.getDistanceTo(lastClicked.getLocation());
+			
+			return distance <= threatRadius;		
+		}
+		
+		return false;
+	}
+	
+	
+	
+	
 	
 	// helper method to draw key in GUI
 	private void addKey() {	
